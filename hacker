@@ -1,0 +1,122 @@
+import pygame
+import sys
+import time
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Set screen dimensions
+screen = pygame.display.set_mode((800, 600))
+pygame.display.set_caption("I Love You Animation")
+
+# Define colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+COLORS = [WHITE, RED, GREEN, BLUE]
+
+# Font settings
+font = pygame.font.Font(None, 100)
+button_font = pygame.font.Font(None, 50)
+
+# Define the text and name
+text = "I Love You"
+name = "RIDDHI J"  # Personalize the name here
+
+# Function to animate the text
+def animate_text():
+    text_surfaces = [font.render(letter, True, random.choice(COLORS)) for letter in text]
+    name_surface = font.render(name, True, WHITE)
+
+    x_pos = 150
+    y_pos = 250
+    alpha_values = [0 for _ in text]
+    scale_factors = [0.5 for _ in text]
+    text_offsets = [0 for _ in text]
+
+    screen.fill(BLACK)
+
+    for frame in range(200):
+        screen.fill(BLACK)  # Clear the screen
+        
+        # Draw "I Love You" with effects
+        for i, letter_surface in enumerate(text_surfaces):
+            alpha_values[i] = min(alpha_values[i] + 5, 255)
+            letter_surface.set_alpha(alpha_values[i])
+            scale_factors[i] = min(scale_factors[i] + 0.05, 1)
+            scaled_surface = pygame.transform.scale(letter_surface, (int(letter_surface.get_width() * scale_factors[i]), int(letter_surface.get_height() * scale_factors[i])))
+            text_offsets[i] = random.randint(-5, 5)
+            screen.blit(scaled_surface, (x_pos + i * 100 + text_offsets[i], y_pos))
+
+        # Draw Name (below the main text)
+        screen.blit(name_surface, (x_pos + 100, y_pos + 100))
+
+        # Update the screen
+        pygame.display.update()
+
+        # Exit conditions
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        time.sleep(0.05)
+
+# Function for buttons and handling clicks
+def create_buttons():
+    yes_button = pygame.Rect(250, 450, 100, 50)
+    no_button = pygame.Rect(450, 450, 100, 50)
+
+    # Draw the buttons
+    pygame.draw.rect(screen, BLUE, yes_button)
+    pygame.draw.rect(screen, RED, no_button)
+
+    yes_text = button_font.render("Yes", True, WHITE)
+    no_text = button_font.render("No", True, WHITE)
+
+    screen.blit(yes_text, (yes_button.x + 25, yes_button.y + 10))
+    screen.blit(no_text, (no_button.x + 25, no_button.y + 10))
+
+    pygame.display.update()
+
+    # Handle events for button clicks
+    clicked = False
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = event.pos
+            if yes_button.collidepoint(mouse_x, mouse_y):
+                print("Yes clicked!")
+                clicked = True
+            elif no_button.collidepoint(mouse_x, mouse_y):
+                print("No clicked!")
+                clicked = True
+
+    return clicked
+
+# Main function
+def main():
+    start_time = time.time()
+    end_time = start_time + 30 * 60  # 30 minutes in seconds
+
+    animate_text()  # Run the animation once before the loop
+
+    while time.time() < end_time:
+        screen.fill(BLACK)
+        create_buttons()
+
+        if create_buttons():  # If any button is clicked, stop the animation
+            break
+
+        time.sleep(0.1)
+
+    pygame.quit()
+
+# Run the main function
+main()
